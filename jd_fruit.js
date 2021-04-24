@@ -30,12 +30,8 @@ let cookiesArr = [], cookie = '', jdFruitShareArr = [], isBox = false, notify, n
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // 这个列表填入你要助力的好友的shareCode	
    //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开	
-  '20bab5d0edc044a999216db8872cec04@e8b5580c693042b3b276b693c4e30b8b@8837b8b41ef5471aaff64150835c2930@0e432fff4fc649aca3123b7369da53b1@d85b89b1b5ed40ea97ddad1c5d7020cb@b94681d5f9904722a7f277f86ef76aa9@728b92dfaacf4f97bd86df6cb3b352ea@3a1bd385ca3f4d23b158614b288fae65',	
-  //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开	
-  '20bab5d0edc044a999216db8872cec04@e8b5580c693042b3b276b693c4e30b8b@8837b8b41ef5471aaff64150835c2930@0e432fff4fc649aca3123b7369da53b1@d85b89b1b5ed40ea97ddad1c5d7020cb@b94681d5f9904722a7f277f86ef76aa9@728b92dfaacf4f97bd86df6cb3b352ea@3a1bd385ca3f4d23b158614b288fae65',	
-  '20bab5d0edc044a999216db8872cec04@e8b5580c693042b3b276b693c4e30b8b@8837b8b41ef5471aaff64150835c2930@0e432fff4fc649aca3123b7369da53b1@d85b89b1b5ed40ea97ddad1c5d7020cb@b94681d5f9904722a7f277f86ef76aa9@728b92dfaacf4f97bd86df6cb3b352ea@3a1bd385ca3f4d23b158614b288fae65',	
-  '20bab5d0edc044a999216db8872cec04@e8b5580c693042b3b276b693c4e30b8b@8837b8b41ef5471aaff64150835c2930@0e432fff4fc649aca3123b7369da53b1@d85b89b1b5ed40ea97ddad1c5d7020cb@b94681d5f9904722a7f277f86ef76aa9@728b92dfaacf4f97bd86df6cb3b352ea@3a1bd385ca3f4d23b158614b288fae65',	
-  '20bab5d0edc044a999216db8872cec04@e8b5580c693042b3b276b693c4e30b8b@8837b8b41ef5471aaff64150835c2930@0e432fff4fc649aca3123b7369da53b1@d85b89b1b5ed40ea97ddad1c5d7020cb@b94681d5f9904722a7f277f86ef76aa9@728b92dfaacf4f97bd86df6cb3b352ea@3a1bd385ca3f4d23b158614b288fae65'	
+  '',	
+  //账号二的好友shareCode,不同好友的shareCode中间用@符号''	
 ]	
 let message = '', subTitle = '', option = {}, isFruitFinished = false;	
 const retainWater = 100;//保留水滴大于多少g,默认100g;	
@@ -1250,29 +1246,6 @@ function timeFormat(time) {
     date = new Date();
   }
   return date.getFullYear() + '-' + ((date.getMonth() + 1) >= 10 ? (date.getMonth() + 1) : '0' + (date.getMonth() + 1)) + '-' + (date.getDate() >= 10 ? date.getDate() : '0' + date.getDate());
-}
-function readShareCode() {
-  return new Promise(async resolve => {
-    $.get({url: `http://jd.turinglabs.net/api/v2/jd/farm/read/${randomCount}/`, timeout: 10000,}, (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (data) {
-            console.log(`随机取个${randomCount}码放到您固定的互助码后面(不影响已有固定互助)`)
-            data = JSON.parse(data);
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
-    await $.wait(10000);
-    resolve()
-  })
 }
 function shareCodesFormat() {
   return new Promise(async resolve => {
