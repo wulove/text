@@ -30,9 +30,9 @@ let cookiesArr = [], cookie = '', jdFruitShareArr = [], isBox = false, notify, n
 let shareCodes =
  [ // 这个列表填入你要助力的好友的shareCode
    //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-  'f0c316e600554256bde4ac44860c0e0c@53a939c2a7534c438e8af81eb0ab4f82@9ec4c04175e44d5a9277b3369b8962bd@79dbf880007f406fab565e505ebe04c5@ca9187e8bf03400b8ed05e358e0ed899@3fe7f2c7801c42209024b9ca4ffe9022@f31cafcbdcdf4942878f7b5e30255f38@5bf7e52a61dc48be82e72332667b38df@fa27da8a356644a99d5d8df1a1bc96c2@4e7c62f166d448629a794a1545c54562@b6a11b415f774250b47bb7cb02b9e957@a7da5fa44b544f7dad79cbe864f6fd5e@6c482d1189ad409bb6a5d6bfb1f20cae',
+  '',
   //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开
-  'f0c316e600554256bde4ac44860c0e0c@53a939c2a7534c438e8af81eb0ab4f82@9ec4c04175e44d5a9277b3369b8962bd@79dbf880007f406fab565e505ebe04c5@ca9187e8bf03400b8ed05e358e0ed899@3fe7f2c7801c42209024b9ca4ffe9022@f31cafcbdcdf4942878f7b5e30255f38@5bf7e52a61dc48be82e72332667b38df@fa27da8a356644a99d5d8df1a1bc96c2@4e7c62f166d448629a794a1545c54562@b6a11b415f774250b47bb7cb02b9e957@a7da5fa44b544f7dad79cbe864f6fd5e@6c482d1189ad409bb6a5d6bfb1f20cae',
+  '',
 ]
 let message = '', subTitle = '', option = {}, isFruitFinished = false;
 const retainWater = 100;//保留水滴大于多少g,默认100g;
