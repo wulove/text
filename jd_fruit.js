@@ -23,16 +23,16 @@ cron "5 6-18/6 * * *" script-path=https://raw.githubusercontent.com/LXK9301/jd_s
 jd免费水果 搬的https://github.com/liuxiaoyucc/jd-helper/blob/a6f275d9785748014fc6cca821e58427162e9336/fruit/fruit.js
 */
 const $ = new Env('东东农场');
-let cookiesArr = [], cookie = '',;
+let cookiesArr = [], cookie = '', jdFruitShareArr = [], isBox = false, notify, newShareCodes;
 //助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
 //此此内容是IOS用户下载脚本到本地使用，填写互助码的地方，同一京东账号的好友互助码请使用@符号隔开。
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
-//let shareCodes =
+let shareCodes =
  [ // 这个列表填入你要助力的好友的shareCode
    //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-  '',
+  '5d419f12f9ae473083c76e1f3a34c3e1@567fd3bbeeb6456591bd691f8da17e18@001d7fff22ab412abfa13cbb31a85783@8c7859f6aa5b4460979b0783e7352df5@995aa81002144b1a8a26148f32547b0c@6eea3748f6534d47862e78706c87e6dc@e55d5fbd66f942d9adeafd632f6d0d3b@a8e17c0aa6b54144adb2e5ea6ec8fbbe@fdcfaa2e1f824eb68581095132038ee8@8ad506fff12a455982fcc9c6d319e5dd@4af26ed40f5a4a2585eefaf7ae8b1713@df44013087fc427baa1926433e9dece1@4e1e3ec2cb884c339ad0bc9d5bc272ed@247f4412ae474e01aad68206c28b8751',
   //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开
-  '',
+  '5d419f12f9ae473083c76e1f3a34c3e1@567fd3bbeeb6456591bd691f8da17e18@001d7fff22ab412abfa13cbb31a85783@8c7859f6aa5b4460979b0783e7352df5@995aa81002144b1a8a26148f32547b0c@6eea3748f6534d47862e78706c87e6dc@e55d5fbd66f942d9adeafd632f6d0d3b@a8e17c0aa6b54144adb2e5ea6ec8fbbe@fdcfaa2e1f824eb68581095132038ee8@8ad506fff12a455982fcc9c6d319e5dd@4af26ed40f5a4a2585eefaf7ae8b1713@df44013087fc427baa1926433e9dece1@4e1e3ec2cb884c339ad0bc9d5bc272ed@247f4412ae474e01aad68206c28b8751',
 ]
 let message = '', subTitle = '', option = {}, isFruitFinished = false;
 const retainWater = 100;//保留水滴大于多少g,默认100g;
@@ -611,6 +611,74 @@ async function getExtraAward() {
     console.log('领取额外奖励水滴结束\n');
   }
 }
+//助力好友
+async function masterHelpShare() {
+  console.log('开始助力好友')
+  let salveHelpAddWater = 0;
+  let remainTimes = 4;//今日剩余助力次数,默认4次（京东农场每人每天4次助力机会）。
+  let helpSuccessPeoples = '';//成功助力好友
+  console.log(`格式化后的助力码::${JSON.stringify(newShareCodes)}\n`);
+
+  for (let code of newShareCodes) {
+    console.log(`开始助力京东账号${$.index} - ${$.nickName}的好友: ${code}`);
+    if (!code) continue;
+    if (code === $.farmInfo.farmUserPro.shareCode) {
+      console.log('不能为自己助力哦，跳过自己的shareCode\n')
+      continue
+    }
+    await masterHelp(code);
+    if ($.helpResult.code === '0') {
+      if ($.helpResult.helpResult.code === '0') {
+        //助力成功
+        salveHelpAddWater += $.helpResult.helpResult.salveHelpAddWater;
+        console.log(`【助力好友结果】: 已成功给【${$.helpResult.helpResult.masterUserInfo.nickName}】助力`);
+        console.log(`给好友【${$.helpResult.helpResult.masterUserInfo.nickName}】助力获得${$.helpResult.helpResult.salveHelpAddWater}g水滴`)
+        helpSuccessPeoples += ($.helpResult.helpResult.masterUserInfo.nickName || '匿名用户') + ',';
+      } else if ($.helpResult.helpResult.code === '8') {
+        console.log(`【助力好友结果】: 助力【${$.helpResult.helpResult.masterUserInfo.nickName}】失败，您今天助力次数已耗尽`);
+      } else if ($.helpResult.helpResult.code === '9') {
+        console.log(`【助力好友结果】: 之前给【${$.helpResult.helpResult.masterUserInfo.nickName}】助力过了`);
+      } else if ($.helpResult.helpResult.code === '10') {
+        console.log(`【助力好友结果】: 好友【${$.helpResult.helpResult.masterUserInfo.nickName}】已满五人助力`);
+      } else {
+        console.log(`助力其他情况：${JSON.stringify($.helpResult.helpResult)}`);
+      }
+      console.log(`【今日助力次数还剩】${$.helpResult.helpResult.remainTimes}次\n`);
+      remainTimes = $.helpResult.helpResult.remainTimes;
+      if ($.helpResult.helpResult.remainTimes === 0) {
+        console.log(`您当前助力次数已耗尽，跳出助力`);
+        break
+      }
+    } else {
+      console.log(`助力失败::${JSON.stringify($.helpResult)}`);
+    }
+  }
+  if ($.isLoon() || $.isQuanX() || $.isSurge()) {
+    let helpSuccessPeoplesKey = timeFormat() + $.farmInfo.farmUserPro.shareCode;
+    if (!$.getdata(helpSuccessPeoplesKey)) {
+      //把前一天的清除
+      $.setdata('', timeFormat(Date.now() - 24 * 60 * 60 * 1000) + $.farmInfo.farmUserPro.shareCode);
+      $.setdata('', helpSuccessPeoplesKey);
+    }
+    if (helpSuccessPeoples) {
+      if ($.getdata(helpSuccessPeoplesKey)) {
+        $.setdata($.getdata(helpSuccessPeoplesKey) + ',' + helpSuccessPeoples, helpSuccessPeoplesKey);
+      } else {
+        $.setdata(helpSuccessPeoples, helpSuccessPeoplesKey);
+      }
+    }
+    helpSuccessPeoples = $.getdata(helpSuccessPeoplesKey);
+  }
+  if (helpSuccessPeoples && helpSuccessPeoples.length > 0) {
+    message += `【您助力的好友👬】${helpSuccessPeoples.substr(0, helpSuccessPeoples.length - 1)}\n`;
+  }
+  if (salveHelpAddWater > 0) {
+    // message += `【助力好友👬】获得${salveHelpAddWater}g💧\n`;
+    console.log(`【助力好友👬】获得${salveHelpAddWater}g💧\n`);
+  }
+  message += `【今日剩余助力👬】${remainTimes}次\n`;
+  console.log('助力好友结束，即将开始领取额外水滴奖励\n');
+}
 //水滴雨
 async function executeWaterRains() {
   let executeWaterRain = !$.farmTask.waterRainInit.f;
@@ -1176,6 +1244,29 @@ function timeFormat(time) {
     date = new Date();
   }
   return date.getFullYear() + '-' + ((date.getMonth() + 1) >= 10 ? (date.getMonth() + 1) : '0' + (date.getMonth() + 1)) + '-' + (date.getDate() >= 10 ? date.getDate() : '0' + date.getDate());
+}
+function readShareCode() {
+  return new Promise(async resolve => {
+    $.get({url: `http://jd.turinglabs.net/api/v2/jd/farm/read/${randomCount}/`, timeout: 10000,}, (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
+        } else {
+          if (data) {
+            console.log(`随机取个${randomCount}码放到您固定的互助码后面(不影响已有固定互助)`)
+            data = JSON.parse(data);
+          }
+        }
+      } catch (e) {
+        $.logErr(e, resp)
+      } finally {
+        resolve(data);
+      }
+    })
+    await $.wait(10000);
+    resolve()
+  })
 }
 function shareCodesFormat() {
   return new Promise(async resolve => {
